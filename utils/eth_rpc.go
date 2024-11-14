@@ -8,8 +8,6 @@ import (
 	"strconv"
 )
 
-const EthRPCURL = "https://ethereum-rpc.publicnode.com"
-
 type ReqBody struct {
 	JsonRpc string        `json:"jsonrpc"`
 	Method  string        `json:"method"`
@@ -25,7 +23,7 @@ func newReqBody() ReqBody {
 	}
 }
 
-func GetCurrentBlockNumber() (int, error) {
+func GetCurrentBlockNumber(rpcUrl string) (int, error) {
 	body := newReqBody()
 	body.Method = "eth_blockNumber"
 	reqBody, err := json.Marshal(body)
@@ -33,7 +31,7 @@ func GetCurrentBlockNumber() (int, error) {
 		return 0, err
 	}
 
-	resp, err := http.Post(EthRPCURL, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := http.Post(rpcUrl, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return 0, err
 	}
@@ -55,7 +53,7 @@ func GetCurrentBlockNumber() (int, error) {
 	return int(blockNumber), nil
 }
 
-func GetTransaction(address string) ([]entities.Transaction, error) {
+func GetTransaction(rpcUrl, address string) ([]entities.Transaction, error) {
 	body := newReqBody()
 	body.Method = "eth_getBlockByNumber"
 	body.Params = append(body.Params, address, true)
@@ -65,7 +63,7 @@ func GetTransaction(address string) ([]entities.Transaction, error) {
 	}
 
 	// Get transactions from eth_getBlockByNumber method of Ethereum RPC API
-	resp, err := http.Post(EthRPCURL, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := http.Post(rpcUrl, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}

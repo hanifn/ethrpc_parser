@@ -12,6 +12,11 @@ type API struct {
 
 func (api *API) GetCurrentBlock(w http.ResponseWriter, r *http.Request) {
 	block := api.Parser.GetCurrentBlock()
+	if block == -1 {
+		http.Error(w, "Failed to get current block", http.StatusInternalServerError)
+		return
+	}
+
 	json.NewEncoder(w).Encode(map[string]int{"currentBlock": block})
 }
 
@@ -21,7 +26,12 @@ func (api *API) Subscribe(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing address parameter", http.StatusBadRequest)
 		return
 	}
-	api.Parser.Subscribe(address)
+	success := api.Parser.Subscribe(address)
+	if !success {
+		http.Error(w, "Failed to subscribe address", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 

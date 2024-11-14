@@ -19,20 +19,21 @@ type Parser interface {
 }
 
 type EthParser struct {
-	store *storage.MemoryStorage
+	store  *storage.MemoryStorage
+	rpcUrl string
 }
 
 // NewParser returns a new instance of EthParser
-func NewParser(store *storage.MemoryStorage) *EthParser {
-	return &EthParser{store}
+func NewParser(store *storage.MemoryStorage, rpcUrl string) *EthParser {
+	return &EthParser{store, rpcUrl}
 }
 
 // GetCurrentBlock retrieves the last parsed block from the Ethereum JSONRPC API
 func (p *EthParser) GetCurrentBlock() int {
-	blockNum, err := utils.GetCurrentBlockNumber()
+	blockNum, err := utils.GetCurrentBlockNumber(p.rpcUrl)
 	if err != nil {
 		fmt.Println("Error getting current block number")
-		return 0
+		return -1
 	}
 	return blockNum
 }
@@ -45,7 +46,7 @@ func (p *EthParser) Subscribe(address string) bool {
 
 // GetTransactions retrieves a list of inbound and outbound transactions for an address from the Ethereum JSONRPC API
 func (p *EthParser) GetTransactions(address string) []entities.Transaction {
-	transactions, err := utils.GetTransaction(address)
+	transactions, err := utils.GetTransaction(p.rpcUrl, address)
 	if err != nil {
 		fmt.Println("Error getting transactions")
 		return nil

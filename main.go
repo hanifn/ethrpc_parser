@@ -8,10 +8,12 @@ import (
 	"net/http"
 )
 
+const EthRPCURL = "https://ethereum-rpc.publicnode.com"
+
 func main() {
 	// init new parser with in-memory storage
 	memoryStorage := storage.NewMemoryStorage()
-	ethParser := parser.NewParser(memoryStorage)
+	ethParser := parser.NewParser(memoryStorage, EthRPCURL)
 
 	handlers := &api.API{Parser: ethParser}
 
